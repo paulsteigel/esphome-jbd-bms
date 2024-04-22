@@ -510,7 +510,7 @@ bool JbdBms::change_mosfet_status(uint8_t address, uint8_t bitmask, bool state) 
 }
 
 bool JbdBms::write_register(uint8_t address, uint16_t value) {
-  uint8_t frame[8];
+  uint8_t frame[9];
   uint8_t data_len = 2;
 
   frame[0] = JBD_PKT_START;
@@ -525,7 +525,7 @@ bool JbdBms::write_register(uint8_t address, uint16_t value) {
   frame[8] = JBD_PKT_END;
 
   ESP_LOGVV(TAG, "Send command: %s", format_hex_pretty(frame, sizeof(frame)).c_str());
-  this->write_array(frame, 8);
+  this->write_array(frame, 9);
   this->flush();
 
   return true;
@@ -536,14 +536,14 @@ void JbdBms::send_command_(uint8_t action, uint8_t function) {
   uint8_t data_len = 0;
 
   frame[0] = JBD_PKT_START;
-  frame[1] = 0x01;
+  frame[1] = 1;
   frame[2] = action;
-  frame[4] = function;
-  frame[5] = data_len;
+  frame[3] = function;
+  frame[4] = data_len;
   auto crc = chksum_(frame + 2, data_len + 2);
-  frame[6] = crc >> 8;
-  frame[7] = crc >> 0;
-  frame[8] = JBD_PKT_END;
+  frame[5] = crc >> 8;
+  frame[6] = crc >> 0;
+  frame[7] = JBD_PKT_END;
 
   this->write_array(frame, 8);
   this->flush();
