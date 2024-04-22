@@ -532,19 +532,20 @@ bool JbdBms::write_register(uint8_t address, uint16_t value) {
 }
 
 void JbdBms::send_command_(uint8_t action, uint8_t function) {
-  uint8_t frame[7];
+  uint8_t frame[8];
   uint8_t data_len = 0;
 
   frame[0] = JBD_PKT_START;
-  frame[1] = action;
-  frame[2] = function;
-  frame[3] = data_len;
+  frame[1] = 0x01;
+  frame[2] = action;
+  frame[4] = function;
+  frame[5] = data_len;
   auto crc = chksum_(frame + 2, data_len + 2);
-  frame[4] = crc >> 8;
-  frame[5] = crc >> 0;
-  frame[6] = JBD_PKT_END;
+  frame[6] = crc >> 8;
+  frame[7] = crc >> 0;
+  frame[8] = JBD_PKT_END;
 
-  this->write_array(frame, 7);
+  this->write_array(frame, 8);
   this->flush();
 }
 
